@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+    <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/miEstilo.css') }}" />
+</head>
+<body>
+    <section class="content">
+        {% for message in get_flashed_messages() %}
+        <div class="flash"> {{ message }} </div>
+        {% endfor %}
+    </section>
+    <h1>Registro para vacunación COVID-19</h1>
+
+    <form name="formulario" method="post" action="{{ url_for('register') }}">
+        <div>
+            <label for="username">Usuario</label>
+            <input type="text" name="username" id="username" />
+        </div>
+        <div>
+            <label for="email">Correo electrónico</label>
+            <input  name="email" id="email" />
+        </div>
+        <div>
+            <label for="password">Contraseña</label>
+            <input type="password" name="password" id="password" />
+            <img src="{{ url_for('static', filename='images/view.png') }}"
+            onmouseover="mostrarPassword();"
+            onmouseout="ocultarPassword();"/>
+        </div>
+
+        <input type="submit" value="Registrarse">
+
+    </form>
+
+
+
+</body>
+</html>
