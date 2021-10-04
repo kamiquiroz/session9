@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request, flash
 
 import yagmail as yagmail
+import os
 
 import utils
 
 app = Flask(__name__)
+app.debug = True
+app.secret_key = os.urandom(12)
+
 
 @app.route('/')
 def index():
@@ -16,16 +20,11 @@ def login():
 
 @app.route('/register', methods = ('GET', 'POST'))
 def register():
-    print(1)
     try:
         if request.method == 'POST':
-            print(2)
             username = request.form['username']
-            print(username)
             password = request.form['password']
-            print(password)
             email = request.form['email']
-            print(email)
 
             #validamos hasta aqui
             if not utils.isEmailValid(email):
@@ -43,9 +42,17 @@ def register():
                 flash(error)
                 return render_template('register.html')
 
+            yag = yagmail.SMTP('mintic202221@gmail.com','Mintic2022')
+            yag.send(to=email, subject= 'Activa tu cuenta',
+                     contents='Bievenido al portal de Registro de Vacunación  usa este link '
+                              'para activar tu cuenta')
+
+            flash("Revisa tu correo para activar tu cuenta")
             return render_template('login.html')
+
         return render_template('register.html')
     except Exception as e:
+        print(e)
         return render_template('register.html')
 
 if __name__ == '__main__':

@@ -8,6 +8,11 @@
     <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
 </head>
 <body>
+    <section class="content">
+        {% for message in get_flashed_messages() %}
+        <div class="flash"> {{ message }} </div>
+        {% endfor %}
+    </section>
     <h1>Iniciar sesión</h1>
     <form name="loginForm" method="post">
         <div>
