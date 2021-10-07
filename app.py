@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, jsonify, redirect
 from forms import ContactUs
+from message import mensajes
 
 import yagmail as yagmail
 import os
@@ -16,9 +17,32 @@ def index():
     return render_template('sesion.html')
 
 
-@app.route('/login')
+@app.route('/login', methods=('GET', 'POST'))
 def login():
-    return render_template('login.html')
+    try:
+        if request.method == 'POST':
+            username = request.form['username']
+            password = request.form['password']
+            if not username:
+                error = 'Debes ingresar un usuario'
+                flash(error)
+                return render_template('login.html')
+
+            if not password:
+                error = 'Debes ingresar una contraseña'
+                flash(error)
+                return render_template('login.html')
+
+            if username == 'Prueba' and password == 'Prueba123':
+                return redirect('mensaje')
+            else:
+                error = 'Usuario o contraseña inválidos.'
+                flash(error)
+                return render_template('login.html')
+        return render_template('login.html')
+    except Exception as ex:
+        print(ex)
+        return render_template('login.html')
 
 
 @app.route('/register', methods=('GET', 'POST'))
@@ -64,6 +88,10 @@ def contactUs():
     form = ContactUs()
     return render_template('contactUs.html', form=form)
 
+
+@app.route('/mensaje')
+def message():
+    return jsonify({'usuario': mensajes, 'mensaje': 'Mensajes'})
 
 if __name__ == '__main__':
     app.run()

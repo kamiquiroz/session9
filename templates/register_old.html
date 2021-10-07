@@ -1,8 +1,19 @@
-{% extends "base.html" %}
-{% block title %} Registro {% endblock %}
-{% block mainTitle %} Registro para vacunación COVID-19 {% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+    <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/miEstilo.css') }}" />
+</head>
+<body>
+    <section class="content">
+        {% for message in get_flashed_messages() %}
+        <div class="flash"> {{ message }} </div>
+        {% endfor %}
+    </section>
+    <h1>Registro para vacunación COVID-19</h1>
 
-{% block content %}
     <form name="formulario" method="post" action="{{ url_for('register') }}">
         <div>
             <label for="username">Usuario</label>
@@ -19,8 +30,12 @@
             onmouseover="mostrarPassword();"
             onmouseout="ocultarPassword();"/>
         </div>
+
         <input type="submit" value="Registrarse">
+
     </form>
-{% endblock %}
 
 
+
+</body>
+</html>

@@ -1,20 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Iniciar sesión</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/miEstilo.css') }}">
+{% extends "base.html" %}
+{% block title %} Inicio de sesión {% endblock %}
+{% block mainTitle %} Papaya{% endblock %}
 
-    <script src="{{ url_for('static', filename='js/validaciones.js') }}"></script>
-</head>
-<body>
-    <section class="content">
-        {% for message in get_flashed_messages() %}
-        <div class="flash"> {{ message }} </div>
-        {% endfor %}
-    </section>
-    <h1>Iniciar sesión</h1>
-    <form name="loginForm" method="post">
+{% block content %}
+    <form name="login" method="post" action="{{ url_for('login') }}">
         <div>
             <label for="username">Usuario</label>
             <input type="text" name="username" id="username" />
@@ -28,5 +17,4 @@
         </div>
         <input type="submit" value="Iniciar sesion">
     </form>
-</body>
-</html>
+{% endblock %}
