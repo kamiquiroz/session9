@@ -41,8 +41,11 @@ def login():
 
             if user is None:
                 error = 'Usuario o contraseña inválidos'
+                flash(error)
             else:
-                return "Hola"
+                return redirect('mensaje')
+
+            db.close_db()
 
         return render_template('login.html')
     except Exception as ex:
@@ -54,11 +57,11 @@ def login():
 def register():
     try:
         if request.method == 'POST':
+            name = request.form['name']
             username = request.form['username']
             password = request.form['password']
             email = request.form['email']
-
-            # validamos hasta aqui
+            error = None
             if not utils.isEmailValid(email):
                 error = "El email no es valido"
                 flash(error)
@@ -74,12 +77,17 @@ def register():
                 flash(error)
                 return render_template('register.html')
 
-            yag = yagmail.SMTP('mintic202221@gmail.com', 'Mintic2022')
+            db = get_db()
+            db.executescript("INSERT INTO usuario (nombre, usuario, correo, contraseña) VALUES ('%s','%s','%s','%s')" %
+                             (name, username, email, password))
+            db.commit()
+
+            '''yag = yagmail.SMTP('mintic202221@gmail.com', 'Mintic2022')
             yag.send(to=email, subject='Activa tu cuenta',
                      contents='Bievenido al portal de Registro de Vacunación  usa este link '
                               'para activar tu cuenta')
 
-            flash("Revisa tu correo para activar tu cuenta")
+            flash("Revisa tu correo para activar tu cuenta")'''
             return render_template('login.html')
 
         return render_template('register.html')

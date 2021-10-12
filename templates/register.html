@@ -5,6 +5,10 @@
 {% block content %}
     <form name="formulario" method="post" action="{{ url_for('register') }}">
         <div>
+            <label for="name">Nombre</label>
+            <input type="text" name="name" id="name" />
+        </div>
+        <div>
             <label for="username">Usuario</label>
             <input type="text" name="username" id="username" />
         </div>
