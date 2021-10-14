@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %} Mensajes {% endblock %}
+{% block mainTitle %} Envio de Mensajes {% endblock %}
+
+{% block content %}
+    <form method="post" action="{{ url_for('send') }}">
+        <div>
+            <label for="para"> Para:</label>
+            <input name="para" id="para" required>
+        </div>
+        <div>
+            <label for="asunto"> Asunto:</label>
+            <input name="asunto" id="asunto" required>
+        </div>
+        <div>
+            <label for="mensaje"> Mensaje:</label>
+            <input name="mensaje" id="mensaje" required>
+        </div>
+        <button type="submit" value="Enviar" >Enviar mensaje</button>
+    </form>
+{% endblock %}

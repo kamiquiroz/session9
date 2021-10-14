@@ -7,6 +7,18 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/miEstilo.css') }}"/>
 </head>
 <body>
+    <nav>
+        <ul>
+            {% if g.user %}
+                <li> <a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
+            {% else %}
+                <li> <a href="{{ url_for('register') }}">Registrarse</a></li>
+                <li> <a href="{{ url_for('login') }}">Iniciar sesión</a></li>
+            {% endif %}
+            <li> <a href="{{ url_for('contactUs') }}">Contactenos</a></li>
+        </ul>
+    </nav>
+
     <section class="content">
         {% for message in get_flashed_messages() %}
             <div class="flash">{{ message }}</div>
