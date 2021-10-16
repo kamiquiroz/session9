@@ -1,7 +1,8 @@
 import functools
 
-from flask import Flask, render_template, request, flash, jsonify, redirect, g, url_for, session
-from werkzeug.security import generate_password_hash
+from flask import Flask, render_template, request, flash, jsonify, redirect, g, url_for, session, send_file, \
+    make_response
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from forms import ContactUs
 from message import mensajes
@@ -15,6 +16,7 @@ app = Flask(__name__)
 app.debug = True
 app.secret_key = os.urandom(12)
 from db import get_db
+
 
 @app.route('/')
 def index():
@@ -43,17 +45,22 @@ def login():
                 flash(error)
                 return render_template('login.html')
 
-            user = db.execute('SELECT * FROM usuario WHERE usuario= ? AND contraseña= ?', (username, password)).fetchone()
+            user = db.execute('SELECT * FROM usuario WHERE usuario= ?', (username, )).fetchone()
 
             if user is None:
                 error = 'Usuario o contraseña inválidos'
-                flash(error)
             else:
-                session.clear()
-                session['user_id'] = user[0]
-
-            db.close_db()
-
+                store_password = user[4]
+                result = check_password_hash(store_password, password)
+                if result is False:
+                    error = 'Usuario o contraseña inválidos'
+                else:
+                    session.clear()
+                    session['user_id'] = user[0]
+                    resp = make_response(redirect(url_for('send')))
+                    resp.set_cookie('username', username)
+                    return resp
+            flash(error)
         return render_template('login.html')
     except Exception as ex:
         print(ex)
@@ -86,12 +93,12 @@ def register():
 
             db = get_db()
 
-            #generate_password_hash
+            # generate_password_hash
 
-            user = db.execute('SELECT id_usuario FROM usuario WHERE correo=?',(email,)).fetchone()
+            user = db.execute('SELECT id_usuario FROM usuario WHERE usuario=?', (username,)).fetchone()
 
             if user is not None:
-                error = 'El correo ya existe'.format(email)
+                error = 'El usuario ya existe'.format(email)
                 flash(error)
                 return render_template('register.html')
 
@@ -113,7 +120,7 @@ def register():
         return render_template('register.html')
 
 
-@app.route('/contactUs', methods=['GET', 'POST'])
+@app.route('/contactUs', methods=('GET', 'POST'))
 def contactUs():
     form = ContactUs()
     return render_template('contactUs.html', form=form)
@@ -125,7 +132,8 @@ def login_required(view):
         if g.user is None:
             return redirect(url_for('login'))
         return view(**kwargs)
-    return wrapped_view()
+
+    return wrapped_view
 
 
 @app.route('/mensaje')
@@ -139,46 +147,73 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/send', methods=['GET', 'POST'])
+@app.route('/send', methods=('GET', 'POST'))
 @login_required
 def send():
-    if request.method == 'POST':
-        from_id = g.user[0]
-        to_username = request.form['para']
-        subject = request.form['asunto']
-        body = request.form['mensaje']
+    try:
+        if request.method == 'POST':
+            from_id = g.user[0]
+            to_username = request.form['para']
+            subject = request.form['asunto']
+            body = request.form['mensaje']
 
-        if not to_username:
-            flash('Campo requerido')
-            return render_template('send.html')
+            username = request.cookies.get('username')
+            if not to_username:
+                flash(username + ' Para es un campo requerido')
+                return render_template('send.html')
 
-        if not subject:
-            flash('Campo requerido')
-            return render_template('send.html')
+            if not subject:
+                flash(username + ' El asunto es un campo requerido')
+                return render_template('send.html')
 
-        if not body:
-            flash('Campo requerido')
-            return render_template('send.html')
+            if not body:
+                flash(username + ' El mensaje es un campo requerido')
+                return render_template('send.html')
 
+            db = get_db()
+            user_to = db.execute('SELECT * FROM usuario WHERE usuario = ?', (to_username,)).fetchone()
+
+            if user_to is None:
+                error = 'No existe el usuario ingresado'
+                flash(error)
+            else:
+                db = get_db()
+                db.execute('INSERT INTO mensajes (from_id, to_id, asunto, mensaje) VALUES (?,?,?,?)',
+                           (from_id, user_to[0], subject, body))
+                db.commit()
+                flash("Mensaje Enviado")
+        return render_template('send.html')
+    except Exception as e:
+        print(e)
+
+
+@app.before_request
+def load_logged_in_user():
+    user_id = session.get('user_id')
+    if user_id is None:
+        g.user = None
+    else:
         db = get_db()
-        user_to = db.execute('SELECT * FROM usuario WHERE usuario = ?', (to_username,)).fetchone()
-
-        if user_to is None:
-            error = 'No existe el usuario ingresado'
-        else:
-
-            db.execute('INSERT INTO mensajes (from_id, to_id, asunto, mensaje) VALUES (?,?,?,?)',
-                       (from_id, user_to[0], subject, body))
-            db.commit()
-            db.close_db()
-    return render_template('send.html')
+        g.user = db.execute('SELECT * FROM usuario WHERE id_usuario = ?', (user_id, )).fetchone()
 
 
+@app.route('/downloadpdf', methods=('GET', 'POST'))
+@login_required
+def download_pdf():
+    try:
+        return send_file("static/resources/doc.pdf", as_attachment=True)
+    except Exception as e:
+        print(e)
 
 
-
-
-
+@app.route('/downloadimage', methods=('GET', 'POST'))
+@login_required
+def download_image():
+    try:
+        return send_file("static/resources/image.png", as_attachment=True)
+    except Exception as e:
+        print(e)
 
 if __name__ == '__main__':
     app.run()
+
