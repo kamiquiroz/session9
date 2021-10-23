@@ -12,6 +12,7 @@
             {% if g.user %}
                 <li> <a href="{{ url_for('download_pdf') }}">Descargar PDF</a></li>
                 <li> <a href="{{ url_for('download_image') }}">Descargar imagen</a></li>
+                <li> <a href="{{ url_for('view_users') }}">Ver usuarios</a></li>
                 <li> <a href="{{ url_for('logout') }}">Cerrar sesión</a></li>
             {% else %}
                 <li> <a href="{{ url_for('register') }}">Registrarse</a></li>

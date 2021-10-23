@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %} Usuario  {% endblock %}
+{% block mainTitle %} Ver Usuario {% endblock %}
+
+{% block content %}
+    <h3>Nombre</h3>
+        <p>{{ user.1 }}</p>
+    <hr>
+    <h3>Correo</h3>
+        <p>{{ user.3 }}</p>
+    <hr>
+    <h3>Usuario</h3>
+        <p>{{ user.2 }}</p>
+    <hr>
+{% endblock %}

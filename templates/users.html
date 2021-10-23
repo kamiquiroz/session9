@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}  Usuarios {% endblock %}
+{% block mainTitle %} Ver Usuarios {% endblock %}
+
+{% block content %}
+    <table style="width:100%">
+    {% for user in users %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td> <a href={{ url_for('view_user', user_id=user[0]) }}>Ver usuario</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+
+{% endblock %}

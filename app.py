@@ -25,6 +25,15 @@ def index():
     return render_template('login.html')
 
 
+def login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.user is None:
+            return redirect(url_for('login'))
+        return view(**kwargs)
+    return wrapped_view
+
+
 @app.route('/login', methods=('GET', 'POST'))
 def login():
     try:
@@ -66,6 +75,22 @@ def login():
         print(ex)
         return render_template('login.html')
 
+
+@app.route('/users', methods=('GET', 'POST'))
+@login_required
+def view_users():
+    db = get_db()
+    users = db.execute('SELECT * FROM usuario').fetchall()
+    return render_template("users.html", users=users)
+
+
+@app.route('/user/<int:user_id>')
+def view_user(user_id):
+    db = get_db()
+    user = db.execute('SELECT * FROM usuario WHERE id_usuario= ?', (user_id,)).fetchone()
+    if user:
+        return render_template('user.html', user=user)
+    return f"Usuario con id ={user_id} no existe"
 
 @app.route('/register', methods=('GET', 'POST'))
 def register():
@@ -126,15 +151,6 @@ def contactUs():
     return render_template('contactUs.html', form=form)
 
 
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None:
-            return redirect(url_for('login'))
-        return view(**kwargs)
-    return wrapped_view
-
-
 @app.route('/mensaje')
 def message():
     return jsonify({'usuario': mensajes, 'mensaje': 'Mensajes'})
@@ -182,10 +198,11 @@ def send():
                 db.commit()
                 flash("Mensaje Enviado")
         else:
-            username = request.cookies.get('username')
             return render_template('send.html')
     except Exception as e:
         print(e)
+
+
 
 
 @app.before_request
