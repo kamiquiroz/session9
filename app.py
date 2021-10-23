@@ -174,14 +174,16 @@ def send():
 
             if user_to is None:
                 error = 'No existe el usuario ingresado'
-                flash(error)
+                flash(username + error)
             else:
                 db = get_db()
                 db.execute('INSERT INTO mensajes (from_id, to_id, asunto, mensaje) VALUES (?,?,?,?)',
                            (from_id, user_to[0], subject, body))
                 db.commit()
                 flash("Mensaje Enviado")
-        return render_template('send.html')
+        else:
+            username = request.cookies.get('username')
+            return render_template('send.html')
     except Exception as e:
         print(e)
 
