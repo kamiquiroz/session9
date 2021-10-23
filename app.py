@@ -132,7 +132,6 @@ def login_required(view):
         if g.user is None:
             return redirect(url_for('login'))
         return view(**kwargs)
-
     return wrapped_view
 
 
@@ -213,6 +212,7 @@ def download_image():
         return send_file("static/resources/image.png", as_attachment=True)
     except Exception as e:
         print(e)
+
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=8443, ssl_context=('micertificado.pem', 'llaveprivada.pem'))
